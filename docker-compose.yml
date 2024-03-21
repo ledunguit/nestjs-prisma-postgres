@@ -1,0 +1,29 @@
+services:
+  app_db:
+    container_name: app_db
+    image: postgres:16.2
+    env_file:
+      - .env.development
+    ports:
+      - ${DATABASE_PORT}:5432
+    volumes:
+      - app_db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+
+  app_mailer:
+    container_name: app_mailer
+    env_file:
+      - .env.development
+    build:
+      context: .
+      dockerfile: maildev.Dockerfile
+    ports:
+      - ${MAIL_CLIENT_PORT}:1080
+      - ${MAIL_PORT}:1025
+
+volumes:
+  app_db_data:
+    driver: local
