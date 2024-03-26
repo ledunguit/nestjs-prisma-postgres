@@ -8,34 +8,67 @@ datasource db {
 }
 
 model User {
-  id                 BigInt     @id @default(autoincrement())
-  email              String     @unique
-  emailVerifiedToken String?    @map("email_verified_token")
-  emailVerifiedAt    DateTime?  @map("email_verified_at")
-  password           String
-  refreshToken       String?    @map("refresh_token")
-  fullName           String?    @map("full_name")
-  bio                String?
-  role               Role       @default(USER)
-  avatar             String?
-  createdAt          DateTime   @default(now()) @map("created_at")
-  updatedAt          DateTime   @updatedAt @map("updated_at")
-  status             UserStatus @default(ACTIVE)
-  Post               Post[]
+  id                     Int           @id @default(autoincrement())
+  email                  String        @unique
+  emailVerificationToken String?       @map("email_verification_token")
+  emailVerifiedAt        DateTime?     @map("email_verified_at")
+  password               String
+  refreshToken           String?       @map("refresh_token")
+  fullName               String?       @map("full_name")
+  bio                    String?
+  role                   Role          @default(USER)
+  avatar                 String?
+  provider               AuthProvider?
+  socialId               String?       @map("social_id")
+  createdAt              DateTime      @default(now()) @map("created_at")
+  updatedAt              DateTime      @updatedAt @map("updated_at")
+  lastLoginAt            DateTime?     @map("last_login_at")
+  lastLoginIp            String?       @map("last_login_ip")
+  status                 UserStatus    @default(ACTIVE)
+  Post                   Post[]
 
   @@map("users")
 }
 
 model Post {
-  id        BigInt   @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   title     String
   content   String?
-  authorId  BigInt
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  author    User     @relation(fields: [authorId], references: [id])
 
   @@map("posts")
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  blobId    Int?     @unique
+  blob      Blob?    @relation(fields: [blobId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("attachments")
+}
+
+model Blob {
+  id         Int         @id @default(autoincrement())
+  name       String?
+  url        String
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  attachment Attachment?
+
+  @@map("blobs")
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  FACEBOOK
+  GITHUB
 }
 
 enum Role {

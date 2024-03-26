@@ -11,6 +11,7 @@ async function main() {
     {
       email: 'admin@example.com',
       password: bcrypt.hashSync(defaultPassword, salt),
+      provider: 'EMAIL',
       fullName: 'Admin',
       role: Role.ADMIN,
       emailVerifiedAt: new Date(),
@@ -18,6 +19,7 @@ async function main() {
     {
       email: 'ledung@example.com',
       password: bcrypt.hashSync(defaultPassword, salt),
+      provider: 'EMAIL',
       fullName: 'Le Dang Dung',
       role: Role.USER,
       emailVerifiedAt: new Date(),

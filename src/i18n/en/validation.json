@@ -1,0 +1,11 @@
+{
+  "common": {
+    "min": "{property} length must be greater than {constraints.0}",
+    "max": "{property} length must be less than {constraints.0}",
+    "string": "{property} must be a string",
+    "exists": "{property} is already exists",
+    "not-exists": "{property} is not exists",
+    "not-empty": "{property} must not be empty",
+    "email": "{property} must be a valid email address, current value: {value}"
+  }
+}

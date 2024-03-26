@@ -12,7 +12,10 @@ declare global {
 
 // Init Prisma Client
 if (!globalThis.prisma) {
-  globalThis.prisma = new PrismaClient();
+  globalThis.prisma = new PrismaClient({
+    log: ['query', 'info', 'warn', 'error'],
+  });
+  globalThis.prisma.$connect();
 }
 
 export default globalThis.prisma;
