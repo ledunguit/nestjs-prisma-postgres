@@ -41,6 +41,9 @@ export type I18nTranslations = {
             "text4": string;
         };
     };
+    "fields": {
+        "password": string;
+    };
     "validation": {
         "common": {
             "min": string;

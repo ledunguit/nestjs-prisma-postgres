@@ -1,11 +1,11 @@
 {
-    "common": {
-        "min": "{property} phải có độ dài lớn hơn {constraints.0}",
-        "max": "{property} phải có độ dài nhỏ hơn {constraints.0}",
-        "string": "{property} phải là chuỗi",
-        "exists": "{property} đã tồn tại",
-        "not-exists": "{property} không tồn tại",
-        "not-empty": "{property} không được trống",
-        "email": "{property} phải là một email hợp lệ, giá trị hiện tại: {value}"
-    }
+  "common": {
+    "min": "$t(fields.{property}) phải có độ dài lớn hơn {constraints.0}",
+    "max": "$t(fields.{property}) phải có độ dài nhỏ hơn {constraints.0}",
+    "string": "$t(fields.{property}) phải là chuỗi",
+    "exists": "$t(fields.{property}) đã tồn tại",
+    "not-exists": "$t(fields.{property}) không tồn tại",
+    "not-empty": "$t(fields.{property}) không được trống",
+    "email": "$t(fields.{property}) phải là một email hợp lệ, giá trị hiện tại: {value}"
+  }
 }
