@@ -13,6 +13,7 @@ model User {
   emailVerificationToken String?       @map("email_verification_token")
   emailVerifiedAt        DateTime?     @map("email_verified_at")
   password               String
+  passwordResetToken     String?       @map("password_reset_token")
   refreshToken           String?       @map("refresh_token")
   fullName               String?       @map("full_name")
   bio                    String?

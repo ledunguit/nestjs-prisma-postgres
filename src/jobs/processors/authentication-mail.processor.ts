@@ -20,6 +20,6 @@ export class AuthenticationMailProcessor {
     name: 'forgot-password-mail',
   })
   async sendForgotPasswordMail(job: Job) {
-    console.log('sendForgotPasswordMail', job.data);
+    await this.mailService.sendForgotPasswordEmail(job.data.lang, job.data.mailData);
   }
 }

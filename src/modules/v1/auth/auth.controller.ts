@@ -1,17 +1,23 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Ip, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BaseController } from '../../base/base.controller';
 import { AuthService } from './auth.service';
 import { RegisterDto } from '@/modules/v1/auth/dto/register.dto';
-import { LogoutResponseType, TokensResponseType, VerifyResponseType } from '@/types/auth/response.type';
+import {
+  LogoutResponseType,
+  SuccessResponseType,
+  TokensResponseType,
+  VerifyResponseType,
+} from '@/types/auth/response.type';
 import { VerifyDto } from '@/modules/v1/auth/dto/verify.dto';
 import { AuthDto } from '@/modules/v1/auth/dto/auth.dto';
 import { AccessTokenGuard } from '@/auth/access-token.guard';
 import { User } from '@prisma/client';
 import { RefreshTokenGuard } from '@/auth/refresh-token.guard';
 import { Request as ExpressRequest } from 'express';
-import { NullableType } from '@/types/nullable.type';
 import { GuardPayloadType } from '@/types/auth/guard-payload.type';
+import { ForgotPasswordDto } from '@/modules/v1/auth/dto/forgot-password.dto';
+import { ResetPasswordDto } from '@/modules/v1/auth/dto/reset-password.dto';
 
 @ApiTags('Authentication V1')
 @Controller({
@@ -65,12 +71,17 @@ export class AuthController extends BaseController {
     return await this.authService.refreshToken(request);
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get current user profile information' })
-  @Get('/profile')
-  @UseGuards(AccessTokenGuard)
+  @ApiOperation({ summary: 'Forgot password' })
+  @Post('/forgot-password')
   @HttpCode(HttpStatus.OK)
-  public profile(@Request() request: ExpressRequest & GuardPayloadType): Promise<NullableType<User>> {
-    return this.authService.profile(request);
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<SuccessResponseType> {
+    return await this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @ApiOperation({ summary: 'Reset password' })
+  @Post('/reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<SuccessResponseType> {
+    return await this.authService.resetPassword(resetPasswordDto);
   }
 }

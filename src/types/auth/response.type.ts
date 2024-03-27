@@ -4,6 +4,8 @@ export type LogoutResponseType = {
   success: boolean;
 };
 
+export type SuccessResponseType = LogoutResponseType;
+
 export type TokensResponseType = Readonly<{
   tokens: TokensPairType;
 }>;

@@ -9,14 +9,19 @@ import { randomStringGenerator } from '@nestjs/common/utils/random-string-genera
 import { UserService } from '@/modules/v1/user/user.service';
 import { TokensPairType } from '@/types/auth/get-tokens.type';
 import { AuthProvider, User } from '@prisma/client';
-import { LogoutResponseType, TokensResponseType, VerifyResponseType } from '@/types/auth/response.type';
+import {
+  LogoutResponseType,
+  SuccessResponseType,
+  TokensResponseType,
+  VerifyResponseType,
+} from '@/types/auth/response.type';
 import { VerifyDto } from '@/modules/v1/auth/dto/verify.dto';
 import { AuthDto } from '@/modules/v1/auth/dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { Request as ExpressRequest } from 'express';
-import { NullableType } from '@/types/nullable.type';
 import { GuardPayloadType } from '@/types/auth/guard-payload.type';
 import { I18nContext } from 'nestjs-i18n';
+import { ResetPasswordDto } from '@/modules/v1/auth/dto/reset-password.dto';
 
 @Injectable()
 export class AuthService extends BaseService {
@@ -208,9 +213,62 @@ export class AuthService extends BaseService {
     };
   }
 
-  async profile(@Request() request: ExpressRequest & GuardPayloadType): Promise<NullableType<User>> {
-    return this.prismaClient.user.findFirst({
-      where: { email: request.guardPayload.email },
+  async forgotPassword(email: string): Promise<SuccessResponseType> {
+    const user = await this.prismaClient.user.findUnique({
+      where: { email },
     });
+
+    if (!user) {
+      this.throwError(HttpStatus.NOT_FOUND, {
+        message: this.t('auth.forgot-password.not-found', { value: email }),
+      });
+    }
+
+    const passwordResetToken = crypto.createHash('sha256').update(randomStringGenerator()).digest('hex');
+
+    await this.prismaClient.user.update({
+      where: { email },
+      data: {
+        passwordResetToken,
+      },
+    });
+
+    await this.mailService.addForgotPasswordEmailJob(I18nContext.current().lang, {
+      to: email,
+      data: { email, passwordResetToken },
+    });
+
+    return {
+      success: true,
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<SuccessResponseType> {
+    const user = await this.prismaClient.user.findFirst({
+      where: {
+        email: resetPasswordDto.email,
+        passwordResetToken: resetPasswordDto.reset_password_token,
+      },
+    });
+
+    if (!user) {
+      this.throwError(HttpStatus.NOT_FOUND, {
+        message: this.t('auth.reset-password.not-found', { value: resetPasswordDto.email }),
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(resetPasswordDto.password, 10);
+
+    await this.prismaClient.user.update({
+      where: { email: resetPasswordDto.email },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+      },
+    });
+
+    return {
+      success: true,
+    };
   }
 }

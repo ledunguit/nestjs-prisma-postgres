@@ -52,7 +52,11 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new I18nValidationExceptionFilter(i18nValidationExceptionFilterOption));
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      strategy: 'excludeAll',
+    }),
+  );
 
   const docsOption = new DocumentBuilder()
     .setTitle('LeDangDungAPI Documentation')

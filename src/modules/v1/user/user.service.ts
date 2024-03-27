@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Request } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthProvider, User } from '@prisma/client';
 import { BaseService } from '@/modules/base/base.service';
 import * as bcrypt from 'bcrypt';
+import { Request as ExpressRequest } from 'express';
+import { GuardPayloadType } from '@/types/auth/guard-payload.type';
+import { plainToClass, plainToInstance } from 'class-transformer';
+import { ResponseProfileDto } from '@/modules/v1/user/dto/response-profile.dto';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -24,31 +28,17 @@ export class UserService extends BaseService {
     });
   }
 
-  // findManyWithPagination(
-  //   paginationOptions: IPaginationOptions,
-  // ): Promise<User[]> {
-  //   return this.usersRepository.find({
-  //     skip: (paginationOptions.page - 1) * paginationOptions.limit,
-  //     take: paginationOptions.limit,
-  //   });
-  // }
-  //
-  // findOne(fields: EntityCondition<User>): Promise<NullableType<User>> {
-  //   return this.usersRepository.findOne({
-  //     where: fields,
-  //   });
-  // }
-  //
-  // update(id: number, payload: DeepPartial<User>): Promise<User> {
-  //   return this.usersRepository.save(
-  //     this.usersRepository.create({
-  //       id,
-  //       ...payload,
-  //     }),
-  //   );
-  // }
-  //
-  // async softDelete(id: number): Promise<void> {
-  //   await this.usersRepository.softDelete(id);
-  // }
+  async profile(@Request() request: ExpressRequest & GuardPayloadType): Promise<ResponseProfileDto> {
+    const user: User = await this.prismaClient.user.findFirst({
+      where: { email: request.guardPayload.email },
+    });
+
+    if (!user) {
+      this.throwError(HttpStatus.UNAUTHORIZED, {
+        message: this.t('auth.profile.unauthorized-token', { value: request.guardPayload.email }),
+      });
+    }
+
+    return plainToInstance(ResponseProfileDto, user);
+  }
 }

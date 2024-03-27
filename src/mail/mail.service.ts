@@ -27,7 +27,7 @@ export class MailService extends BaseService {
       emailVerificationToken: string;
     }>,
   ) {
-    await this.authQueue.add('confirmation-mail', { mailData, lang });
+    await this.authQueue.add('confirmation-mail', { lang, mailData });
   }
 
   async sendRegisterConfirmationEmail(
@@ -39,25 +39,67 @@ export class MailService extends BaseService {
   ) {
     await this.mailerService.sendMail({
       to: mailData.to,
-      subject: this.i18nService.translate('common.confirm-email', { lang }),
+      subject: this.i18nService.translate('auth.verify-email.title', { lang }),
       text: `${this.configService.get('app.frontendDomain', {
         infer: true,
       })}/verify/${mailData.data.emailVerificationToken}`,
       template: 'activation',
       context: {
-        title: this.i18nService.translate('common.confirm-email', { lang }),
+        title: this.i18nService.translate('auth.verify-email.title', { lang }),
         url: `${this.configService.get('app.frontendDomain', {
           infer: true,
         })}/verify/${mailData.data.emailVerificationToken}`,
         actionTitle: this.i18nService.translate('common.confirm-email', { lang }),
         app_name: this.configService.get('app.name', { infer: true }),
-        text1: this.i18nService.translate('email.register-confirm.text1', { lang }),
-        text2: this.i18nService.translate('email.register-confirm.text2', { lang }),
-        text3: this.i18nService.translate('email.register-confirm.text3', { lang }),
-        text4: this.i18nService.translate('email.register-confirm.text4', { lang }),
+        text1: this.i18nService.translate('auth.verify-email.text1', { lang }),
+        text2: this.i18nService.translate('auth.verify-email.text2', { lang }),
+        text3: this.i18nService.translate('auth.verify-email.text3', { lang }),
+        text4: this.i18nService.translate('auth.verify-email.text4', { lang }),
         raw_url: `${this.configService.get('app.frontendDomain', {
           infer: true,
         })}/verify?email=${mailData.data.email}&email_verification_token=${mailData.data.emailVerificationToken}`,
+      },
+    });
+  }
+
+  async addForgotPasswordEmailJob(
+    lang: string,
+    mailData: MailData<{
+      email: string;
+      passwordResetToken: string;
+    }>,
+  ) {
+    await this.authQueue.add('forgot-password-mail', { lang, mailData });
+  }
+
+  async sendForgotPasswordEmail(
+    lang: string,
+    mailData: MailData<{
+      email: string;
+      passwordResetToken: string;
+    }>,
+  ) {
+    await this.mailerService.sendMail({
+      to: mailData.to,
+      subject: this.i18nService.translate('auth.forgot-password.title', { lang }),
+      text: `${this.configService.get('app.frontendDomain', {
+        infer: true,
+      })}/forgot-password/${mailData.data.passwordResetToken}`,
+      template: 'forgot-password',
+      context: {
+        title: this.i18nService.translate('auth.forgot-password.title', { lang }),
+        url: `${this.configService.get('app.frontendDomain', {
+          infer: true,
+        })}/forgot-password/${mailData.data.passwordResetToken}`,
+        actionTitle: this.i18nService.translate('auth.forgot-password.title', { lang }),
+        app_name: this.configService.get('app.name', { infer: true }),
+        text1: this.i18nService.translate('auth.forgot-password.text1', { lang }),
+        text2: this.i18nService.translate('auth.forgot-password.text2', { lang }),
+        text3: this.i18nService.translate('auth.forgot-password.text3', { lang }),
+        text4: this.i18nService.translate('auth.forgot-password.text4', { lang }),
+        raw_url: `${this.configService.get('app.frontendDomain', {
+          infer: true,
+        })}/forgot-password?email=${mailData.data.email}&password_reset_token=${mailData.data.passwordResetToken}`,
       },
     });
   }
