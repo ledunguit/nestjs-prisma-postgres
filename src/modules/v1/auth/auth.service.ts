@@ -16,6 +16,7 @@ import * as bcrypt from 'bcrypt';
 import { Request as ExpressRequest } from 'express';
 import { NullableType } from '@/types/nullable.type';
 import { GuardPayloadType } from '@/types/auth/guard-payload.type';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class AuthService extends BaseService {
@@ -72,7 +73,7 @@ export class AuthService extends BaseService {
     const emailVerificationToken = crypto.createHash('sha256').update(randomStringGenerator()).digest('hex');
     await this.userService.create(registerDto, emailVerificationToken);
 
-    await this.mailService.sendRegisterConfirmationEmail({
+    await this.mailService.addRegisterConfirmationEmailJob(I18nContext.current().lang, {
       to: registerDto.email,
       data: {
         email: registerDto.email,

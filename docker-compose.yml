@@ -24,6 +24,29 @@ services:
       - ${MAIL_CLIENT_PORT}:1080
       - ${MAIL_PORT}:1025
 
+  redis:
+    container_name: app_redis
+    image: redis:7.2
+    ports:
+      - ${REDIS_PORT}:6379
+      - ${REDIS_MONITOR_PORT}:8000
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - app_redis_data:/data
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    ports:
+      - 8088:8081
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
 volumes:
   app_db_data:
+    driver: local
+  app_redis_data:
     driver: local

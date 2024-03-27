@@ -32,6 +32,14 @@ export type MailConfig = {
   requireTLS: boolean;
 };
 
+export type RedisConfig = {
+  host: string;
+  port: string;
+  username: string;
+  password: string;
+  monitorPort: string;
+};
+
 export type AllConfigTypes = {
   app: AppConfig;
   database: DatabaseConfig;

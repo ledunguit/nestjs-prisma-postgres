@@ -1,26 +1,45 @@
+import redisConfig from '@/config/redis.config';
+import database from '@/config/database.config';
+import appConfig from '@/config/app.config';
+import authConfig from '@/config/auth.config';
+import mailConfig from '@/config/mail.config';
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from '@/modules/v1/user/user.module';
 import { AuthModule } from '@/modules/v1/auth/auth.module';
-import database from './config/database.config';
-import appConfig from './config/app.config';
-import authConfig from './config/auth.config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailConfigService } from '@/mail/mail-config.service';
-import mailConfig from '@/config/mail.config';
 import { I18nConfigService } from '@/i18n/i18n-config.service';
-import { APP_GUARD } from '@nestjs/core';
 import { CustomThrottlerGuard } from '@/guards/throttler.guard';
 import { AuthModule as AuthModuleV2 } from '@/modules/v2/auth/auth.module';
+import { BullModule } from '@nestjs/bull';
+import { JobsModule } from '@/jobs/jobs.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, database, authConfig, mailConfig],
+      load: [redisConfig, appConfig, database, authConfig, mailConfig],
       envFilePath: [`.env.${process.env.NODE_ENV}`],
+    }),
+    BullModule.forRootAsync({
+      useFactory: (configService: ConfigService) => {
+        return {
+          redis: {
+            host: configService.get('redis.host'),
+            port: configService.get('redis.port'),
+            username: configService.get('redis.username'),
+            password: configService.get('redis.password'),
+          },
+          defaultJobOptions: {
+            attempts: 3,
+          },
+        };
+      },
+      inject: [ConfigService],
     }),
     ThrottlerModule.forRoot({
       throttlers: [
@@ -55,6 +74,7 @@ import { AuthModule as AuthModuleV2 } from '@/modules/v2/auth/auth.module';
       ],
       inject: [ConfigService],
     }),
+    JobsModule,
     AuthModule,
     AuthModuleV2,
     UserModule,
