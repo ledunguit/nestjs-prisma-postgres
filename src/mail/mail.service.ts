@@ -49,7 +49,7 @@ export class MailService extends BaseService {
         url: `${this.configService.get('app.frontendDomain', {
           infer: true,
         })}/verify/${mailData.data.emailVerificationToken}`,
-        actionTitle: this.i18nService.translate('common.confirm-email', { lang }),
+        actionTitle: this.i18nService.translate('auth.verify-email.verify-button', { lang }),
         app_name: this.configService.get('app.name', { infer: true }),
         text1: this.i18nService.translate('auth.verify-email.text1', { lang }),
         text2: this.i18nService.translate('auth.verify-email.text2', { lang }),
