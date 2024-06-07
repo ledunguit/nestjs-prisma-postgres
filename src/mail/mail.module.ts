@@ -5,12 +5,9 @@ import { BullModule, BullModuleOptions } from '@nestjs/bull';
 import { QUEUE_LIST } from '@/jobs/queue-list';
 
 const queueOptions: BullModuleOptions[] = [
-  {
-    name: QUEUE_LIST.AUTH,
-  },
-  {
-    name: QUEUE_LIST.DEFAULT,
-  },
+  ...Object.values(QUEUE_LIST).map((queue) => ({
+    name: queue,
+  })),
 ];
 
 @Module({
